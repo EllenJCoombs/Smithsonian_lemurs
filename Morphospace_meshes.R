@@ -1,6 +1,3 @@
-
-
-
 library(phytools)
 library(ggplot2)
 library(musculusColors)
@@ -120,3 +117,50 @@ plot(PhM3)
 
 
 grid.arrange(PhM1, PhM2, PhM3, ncol=2)
+
+
+
+#############################
+#                           #
+#    Make a warped mesh     #
+#                           #
+#############################
+
+library(Morpho)
+########################getting the minimum and maximum shape variation at the extreme of each axes
+####################Vizualisation of landmarks onto 
+
+
+species_mesh <- vcgImport( paste( "D:/Missy lemurs/Diadema/plys/ply ASCII/32_HawkinsMCZ44853_Pdiadema.ply", sep = "" ) )
+
+
+species_mesh #that you already defined to vizualise the landmarks
+Species_landmark <-MirroredAC[,,12]#same
+#PC min and max
+PC1max<-PCA.3D.W$shapes$shapes.comp1$max
+PC1min<-PCA.3D.W$shapes$shapes.comp1$min
+PC2max<-PCA.3D.W$shapes$shapes.comp2$max
+PC2min<-PCA.3D.W$shapes$shapes.comp2$min
+
+colors()
+# max PC1
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC1max)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC1min)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC2max)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC2min)
+shade3d(warpskull, col='white', specular=1)
+
+
+
+
+
+
+
+
