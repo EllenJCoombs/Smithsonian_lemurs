@@ -53,20 +53,20 @@ View(cbind(dimnames(arraylm)[[3]], species_data$phylo_name)) #check the names ma
 
 #Note, this has not phylogenetically corrected the data, it has just given it the name of the specimen as it is in the phylogeny
 #Double check your data are still in the same order using spheres3D, for example, is specimen #1 still plotting as a sperm whale (or whatever your specimen number 1 is)
-#If you want to phylo correct before running the Procrustes: check the code here: https://github.com/EllenJCoombs/Matt_odontocetes/blob/master/Phylo_corrected_phylomorphospace.R
+#If you want to phylo correct before running the Procrustes, check the code here: https://github.com/EllenJCoombs/Matt_odontocetes/blob/master/Phylo_corrected_phylomorphospace.R
 
-#Procrustes the data (no phylo correction)
+#Procrustes the data (not phylo correction, see above)
 Y.gpa=gpagen(arraylm) #Procrustes
 shape_data=Y.gpa$coords #Subset out the coords 
 size=Y.gpa$Csize #Centroid size
 
-plot(data) #raw data
+plot(shape_data) #raw data
 
 #This runs a PC and pulls out PC scores (you can also use this for the mesh)
 PCA.ALL <- gm.prcomp(shape_data)
 plot(PCA.ALL) #raw morphospace
 
-#to look at specimen position 
+#to look at specimen position (numbers)
 text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnames(arraylm)[3]
 
 
@@ -110,15 +110,15 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=family))+
   scale_alpha(range=c(0.4, 1),guide=FALSE)+
   #ggtitle("Principal Components Analysis") +
   
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "78.4 % of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"8.6 % of Total Variance)")) +
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
   
   labs(fill = "family") + 
   scale_color_manual(values= cbPalette)
 
-g
+g #plot
 
-#To add specimen neames 
+#To add specimen names 
 g2<- g + geom_text_repel(inherit.aes = FALSE, aes(fontface=1,x=Comp1, y=Comp2,label=sub("_", " ", full), size = 1 ))
 g2
 
