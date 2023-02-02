@@ -1,3 +1,6 @@
+
+#Read in LM data (pts files), check names match, Procrustes, PCA, morphospace (with ecological data if required)
+
 #read in the libraries
 library(geomorph)
 library(rgl)
