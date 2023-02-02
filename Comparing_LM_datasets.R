@@ -1,8 +1,9 @@
 
-#Testing microscribed specimens against checkpoint specimens
+#Testing microscribed specimens against checkpoint specimens - how different is landmark placement? 
 #One data set is read in in morphologika format (microscribed by Anna P), the second data set is in .pts Checkpoint format (landmarked by Ellen C). 
 #Both data sets use the SAME landmarks added to the SAME specimens in the SAME order. 
 
+#load your libraries
 library(Rvcg)
 library(Morpho)
 library(rgl)
@@ -14,7 +15,7 @@ library(geomorph)
 #Read in AP's landmarks (landmark data set number 1)
 landmarks <- read.morphologika('AP_lemur_test.txt') #this is how to read in morphologika data, see below for .pts from checkpoint
 
-arraylm <- landmarks
+arraylm <- landmarks #first data set
 
 #Check LM numbers match your desciptions and are placed where you would expect
 spheres3d(arraylm[,,2]) #number denotes specimen number
