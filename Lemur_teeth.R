@@ -1,4 +1,4 @@
-#Coombs code - lemur teeth
+#Coombs code - lemur teeth 
 #Reading in PTS files, running Procrustes alignment, a PCA (PC = Principal Components - i.e. the shape components), and plotting a morphospace 
 
 #load your libraries
