@@ -60,6 +60,7 @@ plot(PCA.ALL)
 #These numbers correspond to the numbers of your specimen as they are listed in your .pts folder 
 text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4)
 #Any thing odd? Take a look at specific specimens (using spheres3d) to check landmarks
+#You can also plot the specimen with the landmark numbers on using text3d(arraylm[,,3], text = 1:70)
 
 
 #What's the shape of a mean specimen?
