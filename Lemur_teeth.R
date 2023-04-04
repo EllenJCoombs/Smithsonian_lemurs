@@ -95,7 +95,7 @@ pca_scores <- as_tibble(PCA.ALL$x)
 pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x)) 
 
 
-# Plot the data
+#Plot the morphospace
 ggplot(pca_scores, aes(x = Comp1, y = Comp2)) +
   geom_point(size = 3, color = "blue") +
   xlab("PC1 (65.1%)") + ylab("PC2 (15.7%)") +
