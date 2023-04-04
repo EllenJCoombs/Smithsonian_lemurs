@@ -45,13 +45,12 @@ arraylm <- estimate.missing(arraylm,method="TPS")
 
 spheres3d(arraylm[,,3], radius = 0.1, col = 'pink') #this is looking at specimen number 3, have a play with colour and radius 
 
-#Once you've worked with the missing data, you can then plot your PCA 
+#Once you've worked with the missing data, you can then plot your PCA (it would throw an error if there are missing data (9999) in there)
 
 #First Procrustes the data (this removes all info on translation, rotation, and size - leaving shape which is what we want)
 Y.gpa=gpagen(arraylm) #Procrustes
 data=Y.gpa$coords #Subset out the coords 
 size=Y.gpa$Csize #centroid size - if we want to look at size later
-
 
 #This runs a PCA and pulls out PC scores (you can also use this for the mesh later if you want to put nice shapes on the axes)
 PCA.ALL <- gm.prcomp(data)
@@ -91,11 +90,9 @@ summary(PCA.ALL)
 #eg 0.897 = 89.7% 
 #Put these numbers in the ggplot2 code below
 
-
 #pca_res <- plotTangentSpace(shape[,,-which(dimnames(shape)[[3]]%in%reconstructed)])
 pca_scores <- as_tibble(PCA.ALL$x)
 pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x)) 
-
 
 #Plot the morphospace
 ggplot(pca_scores, aes(x = Comp1, y = Comp2)) +
