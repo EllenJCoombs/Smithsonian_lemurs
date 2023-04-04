@@ -1,3 +1,4 @@
+#Coombs code - lemur teeth
 #Reading in PTS files, running Procrustes alignment, a PCA (PC = Principal Components - i.e. the shape components), and plotting a morphospace 
 
 #load your libraries
@@ -9,8 +10,8 @@ library(paleomorph)
 library(geomorph)
 
 
-###=========== LOADING DATA SET 1:THE LANDMARKED SKULL/DATA
-#Read in landmarks manually placed on the whole skull 
+###=========== LOADING DATA SET:THE LANDMARKED SKULL/DATA
+#Read in landmarks manually placed on the whole skull/specimen
 
 ntaxa<-26 ## number of specimens in the test data set - NB you also put this in the code below (x,y,z) 
 
