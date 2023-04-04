@@ -24,7 +24,7 @@ for(i in 1:length(ptslist))
 
 #Pull the names from the .pts files so they match the coords
 #[3] stays the same 
-#!! Make sure to navigate to the folder above with the .pts in it - in the code below, it is looking for a folder called .pts
+#!! Make sure to navigate to the folder ABOVE with the .pts folder in it - in the code below, it is looking for a _folder_ called .pts !!
 dimnames(ptsarray)[3]<-list(
   substr(dir("./pts",pattern=".pts"),1,(nchar(dir("./pts",pattern=".pts"))-4)))
 
@@ -60,8 +60,8 @@ plot(PCA.ALL)
 #These numbers correspond to the numbers of your specimen as they are listed in your .pts folder 
 text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4)
 #Any thing odd? Take a look at specific specimens (using spheres3d) to check landmarks
-#You can also plot the specimen with the landmark numbers on using text3d(arraylm[,,3], text = 1:70)
-
+#You can also plot the specimen with the landmark numbers on using:
+text3d(arraylm[,,3], text = 1:70) #this is looking at specimen number 3
 
 #What's the shape of a mean specimen?
 meanspec <- findMeanSpec(Y.gpa$coords)
