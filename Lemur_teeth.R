@@ -1,4 +1,4 @@
-#Reading in PTS files, running Procrustes alignment, a PCA, and plotting a morphospace 
+#Reading in PTS files, running Procrustes alignment, a PCA (PC = Principal Components - i.e. the shape components), and plotting a morphospace 
 
 #load your libraries
 library(Rvcg)
@@ -86,7 +86,7 @@ library(ggplot2)
 
 #First of all, let's pull out the PC scores from the data so we can put them on the axes
 summary(PCA.ALL)
-#You need to pull out 'proportion of variance' for each comp PCA 
+#You need to pull out 'proportion of variance' for each comp (PC)
 #eg 0.897 = 89.7% 
 #Put these numbers in the ggplot2 code below
 
@@ -100,5 +100,5 @@ pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x))
 ggplot(pca_scores, aes(x = Comp1, y = Comp2)) +
   geom_point(size = 3, color = "blue") +
   xlab("PC1 (65.1%)") + ylab("PC2 (15.7%)") +
-  ggtitle("Morphospace Plot")
-
+  ggtitle("Morphospace Plot") +
+  theme_classic()
