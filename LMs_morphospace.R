@@ -28,7 +28,7 @@ dimnames(ptsarray)[3]<-list(
   substr(dir("./pts",pattern=".pts"),1,(nchar(dir("./pts",pattern=".pts"))-4)))
 
 
-arraym <- ptsarray #this is your data set
+arraylm <- ptsarray #this is your data set
 
 #Have a look at the data in 3D 
 spheres3d(arraylm[,,2], col = 'black', radius = 2)
