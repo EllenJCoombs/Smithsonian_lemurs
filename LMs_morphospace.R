@@ -6,6 +6,7 @@ library(geomorph)
 library(rgl)
 library(ggplot2)
 library(hablar)
+library(dplyr)
 
 #Read in Ellen's LMs - these should be in a .pts folder
 
