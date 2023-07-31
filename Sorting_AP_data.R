@@ -1,4 +1,9 @@
 #Sorting Anna's data
+#Making erroneous data 'missing' and dealing with it accordingly 
+#Pulling out AP and EC data separately to compare 
+#Changing names in AP's data to correct them 
+#Plotting AP and EC data 
+#T.test comparing the distances in the data sets 
 
 #Adding missing lms
 
@@ -6,6 +11,7 @@ AP_EC_coords[26,,145] <- 9999
 
 AP_EC_coords[which(AP_EC_coords==9999)] <- NA
 fixed_missing <- estimate.missing(AP_EC_coords,method="TPS")
+
 
 RHS_wrong <- fixed_missing[,,c(37,59)] #pull out the wrong RHS
 fixed_missing <- fixed_missing[,,-c(37,59)] #delete them from the original data set 
@@ -183,6 +189,18 @@ selected_indices <- grep("_EC$", names_list)
 new_data_EC <- sorted_data_matrix[, , selected_indices]
 
 dimnames(new_data_EC)
+
+
+#Name changing some of AP's specimens - old name first then new name 
+
+species_dim <- dimnames(new_data_AP)[[3]]
+
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus deckenii AMNH_100554_AP"] <- "Propithecus coronatus AMNH_100554_AP"
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus diadema AMNH_100556_AP"] <- "Propithecus candidus AMNH 100556_AP"
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus diadema AMNH_100557_AP"] <- "Propithecus candidus AMNH_100557_AP"
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus diadema MCZ_44855_AP"] <- "Propithecus coronatus MCZ_44855_AP"
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus dickeni USNM_83964_AP"] <- "Propithecus coquereli USNM_83964_AP"
+dimnames(new_data_AP)[[3]][dimnames(new_data_AP)[[3]] == "Propithecus verreauxi MNHN_1961-56_AP"] <- "Propithecus coquereli MNHN_1961-56_AP"
 
 
 library(tidyr)
