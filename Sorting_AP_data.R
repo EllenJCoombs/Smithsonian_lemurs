@@ -190,6 +190,9 @@ new_data_EC <- sorted_data_matrix[, , selected_indices]
 
 dimnames(new_data_EC)
 
+#To REMOVE specimens with _EC on the end 
+#Use grep to find the indices of names not ending in "_EC"
+selected_indices <- which(!grepl("_EC$", names_list))
 
 #Name changing some of AP's specimens - old name first then new name 
 
