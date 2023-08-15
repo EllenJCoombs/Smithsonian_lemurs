@@ -228,3 +228,110 @@ tibble2 <- tibble(Distances.AP = distances_AP$distance, Distances.EC = distances
 t.test(x = tibble2$Distances.AP, y = tibble2$Distances.EC)
 
 
+###############################################################
+#                                                             #
+#   EXTRAS! Change names in data set + match with shape data  #
+#                                                             #
+###############################################################
+
+#Add AP suffix to AP's data 
+
+# Row numbers (indices) of specimens to update
+specimen_indices_to_update <- c(166, 168, 170)  # Replace with the actual indices
+
+# Append "_AP" to the specimen names in the identified rows
+dimnames(sorted_data_matrix)[[3]][specimen_indices_to_update] <- paste0(
+  dimnames(sorted_data_matrix)[[3]][specimen_indices_to_update], "_AP"
+)
+
+# Print the updated specimen names for verification
+print(dimnames(sorted_data_matrix)[[3]])
+
+
+
+# Load the shape data matrix (replace this with your actual data loading code)
+# For the purpose of this example, let's assume the matrix is named 'shape_data_matrix'
+shape_data_matrix <- sorted_data_matrix
+
+# Load the CSV file with specimen names
+csv_data <- read.csv('Ap_data.csv')
+
+# Extract the specimen names from the CSV
+csv_specimen_names <- csv_data$full
+
+# Find the intersection of specimen names
+matching_indices <- which(dimnames(shape_data_matrix)[[3]] %in% csv_specimen_names)
+
+# Subset the shape data matrix to include only the matched specimens
+matched_shape_data <- shape_data_matrix[, , matching_indices]
+
+# Perform additional processing on the matched data if needed
+# ...
+
+# Print the dimensions of the matched data
+dim(matched_shape_data)
+
+# Renamed to AP_final
+
+#Procrustes the two data sets together (important!)
+
+AP_PROC=geomorph::gpagen(AP_final) #Remove non-shape aspects 
+COORDS=AP_PROC$coords #Subset out the coords 
+
+#PCA - Principle components analysis
+pca_res <- geomorph::gm.prcomp(COORDS)
+
+#See how they look in the morphospace 
+#Basic plot with specimen numbers on - specimen numbers relate to the .csv fil
+#Here, we want 1 to sit near 4, 2 to sit near 5, and 3 to sit near 6 because of how we merged the two data sets (see above) - the closer the two data sets sit, the 
+#more similar the landmarking
+plot(pca_res, axis1 = 1, axis2 = 2) #to plot 
+#to look at specimen position 
+text(pca_res$x[,1],pca_res$x[,2], pos = 4)
+
+#Look at one of the first specimens (data set 1) against one of the later specimens (data set 2) to compare 
+spheres3d(COORDS[,,c(3)], radius = 0.004, col = 'red')
+spheres3d(COORDS[,,c(6)], radius = 0.004, col = 'green')
+
+
+
+species_data <- AP_data #this is your species excel csv with the new coloum you added 
+
+pca_scores <- as_tibble(pca_res$x)   #this is your PCA data as before 
+pca_scores <- pca_scores %>% mutate(., full=rownames(pca_res$x))
+
+pca_scores2 <- left_join(species_data, pca_scores, by = c("full")) 
+pca_scores2 <- pca_scores2 %>% convert(fct('genus')) #pulling out landmarking_side as the factor (could also pull out diet, sex, age, etc)
+
+#pca_res <- PCA.ALL #the Procrusted, aligned data
+
+#Set the palette
+cbPalette <- c("#481567FF", "#20A387FF", "darkgreen", "pink", "black", "blue", "grey", "brown", "orange",
+               'red', 'grey') #You only need two colours, for 'left' and 'right' 
+
+g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genus))+
+  geom_point()
+g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genus))+
+  geom_point(size=6,aes(colour=genus, fill= genus))+
+  theme_bw()+
+  theme(aspect.ratio = 1) +
+  scale_alpha(range=c(0.4, 1),guide='none')+
+  #ggtitle("Principal Components Analysis looking at landmarking side") +
+  
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) +
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
+  
+  labs(fill = "genus") +
+  scale_color_manual(values= cbPalette)
+
+g #plot
+
+#To add specimen names if you like! Always helpful to see what's where (this pulls the names from the 'full' column 
+g2<- g + geom_text_repel(inherit.aes = FALSE, aes(fontface=1,x=Comp1, y=Comp2,label=sub("_", " ", label), size = 1 ))
+g2
+
+
+
+
+
+
