@@ -102,14 +102,11 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2))+
   labs(fill = "LMer") + 
   geom_convexhull(alpha = 0.3,aes(fill = LMer))+
   
-  
-  
   #geom_text_repel(aes(label = species_data$full), 
   #box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
   scale_color_manual(values= cbPalette)
 
 g #plot
-
 
 #To add specimen names to a seperate plot
 #With max.overlaps (so names don't overlap)
@@ -117,7 +114,6 @@ ggplot(data = pca_scores2, aes(x = Comp1, y = Comp2)) + theme_bw() +
   geom_text_repel(aes(label = species_data$full), 
                   box.padding = unit(0.45, "lines"),  max.overlaps = 200) +
   geom_point(colour = 'grey', size = 3)
-
 
 
 #Pulling out all AP and EC data to look at the morphospace
@@ -145,15 +141,11 @@ g <-ggplot(new_dataset, aes(x=Comp1, y=Comp2))+
   labs(fill = "LMer") + 
   geom_convexhull(alpha = 0.3,aes(fill = LMer))+
   
-  
-  
   #geom_text_repel(aes(label = species_data$full), 
   #box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
   scale_color_manual(values= cbPalette)
 
 g #plot
-
-
 
 #To add specimen names to a seperate plot
 #With max.overlaps (so names don't overlap)
