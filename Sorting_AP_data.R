@@ -5,6 +5,9 @@
 #Plotting AP and EC data 
 #T.test comparing the distances in the data sets 
 
+#EXTRAS - changing names within a shape data set 
+#       - pulling specimens out of the .csv and the shape data 
+
 #Adding missing lms
 
 AP_EC_coords[26,,145] <- 9999
