@@ -1,4 +1,4 @@
-#Sorting Anna's data
+#Cleaning Anna's data
 #Making erroneous data 'missing' and dealing with it accordingly 
 #Pulling out AP and EC data separately to compare 
 #Changing names in AP's data to correct them 
