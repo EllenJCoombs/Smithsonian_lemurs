@@ -47,7 +47,7 @@ spheres3d(arraylm[c(1:66),,21], radius = 2, color = 'black') #here I am just plo
 #MAKE SURE YOUR SHAPE DATA HAS THE SAME NAME AS YOUR DATA IN THE SPECIES DATA SPEADSHEET - otherwise the shape data and the eco data won't be combined
 #I tend to give everything the same name as it has in the phylogeny (in 'species_data' there is a column called 'phylo_name). 
 
-species_data <- read.csv('species_data_NO_PB.csv',fileEncoding="UTF-8-BOM")
+species_data <- read.csv('species_data.csv',fileEncoding="UTF-8-BOM")
 
 #If needed: 
 
