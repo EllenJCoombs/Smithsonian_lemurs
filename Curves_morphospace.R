@@ -247,8 +247,8 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+
   scale_alpha(range=c(0.4, 1),guide='none')+
   #ggtitle("Principal Components Analysis") +
   
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,3]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[3,2]*100),3),"% of Total Variance)")) +
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
   geom_text_repel(aes(label = species_data$number), 
   box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
   labs(fill = "genetic_id") + 
@@ -340,8 +340,8 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+
   scale_alpha(range=c(0.4, 1),guide='none')+
   #ggtitle("Principal Components Analysis") +
   
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,3]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[3,2]*100),3),"% of Total Variance)")) +
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
   geom_text_repel(aes(label = species_data$number), 
                   box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
   labs(fill = "genetic_id") + 
@@ -430,8 +430,8 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+
   scale_alpha(range=c(0.4, 1),guide='none')+
   #ggtitle("Principal Components Analysis") +
   
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,3]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[3,2]*100),3),"% of Total Variance)")) +
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
   geom_text_repel(aes(label = species_data$number), 
                   box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
   labs(fill = "genetic_id") + 
