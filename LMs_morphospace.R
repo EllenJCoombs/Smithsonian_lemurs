@@ -111,7 +111,7 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=family))+
   geom_point(size=6,aes(colour=family, fill= family))+
   theme_bw()+
   theme(aspect.ratio = 1) +
-  scale_alpha(range=c(0.4, 1),guide=FALSE)+
+  scale_alpha(range=c(0.4, 1),guide='none')+
   #ggtitle("Principal Components Analysis") +
   
   xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
