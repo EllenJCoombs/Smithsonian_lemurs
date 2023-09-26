@@ -515,7 +515,7 @@ g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genetic_id))+
   geom_point()
 g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+ 
   
-  geom_point(size=6,aes(colour=genetic_id, fill= genetic_id))+
+  geom_point(size=8,aes(colour=genetic_id, fill= genetic_id))+
   theme_bw()+
   theme(aspect.ratio = 1) +
   scale_alpha(range=c(0.4, 1),guide='none')+
