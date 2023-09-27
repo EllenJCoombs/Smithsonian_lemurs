@@ -127,84 +127,45 @@ checkLM(slidedlms,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 5
 save(slidedlms, file = 'Final_dataset_LMs_102.R')
 
 
-#######################################################
-#                                                     #
-#      MIRRORING SYMMETRIC SPECIMENS LANDMARKS        #
-#                                                     #
-#######################################################
+load('slidedlms.R')
 
-#Code for mirroring easy symmetrical specimens 
+#Pull out right hand side to reflect 
 
-## REMEMBER THE MIDLINE IS DIFFERENT ##
-midline<-as.integer(c(1:9, 27:58))
-left.curves<-c(5:7) #62-99
-left.lm <- c(10:26)
-right.lm <- c(59:75)
-left.curve.list<-unlist(my_curves$Curve.in[left.curves])
-leftside<-c(left.lm,left.curve.list) # RHS LMs+ RHS curves+all patch points
-num.missing<-(length(leftside)+length(right.lm)) # number of LMs to create= total RHS-current LHS LMs
-blanks<-c((dim(slidedlms)[1]+1):(dim(slidedlms)[1]+num.missing))
-# to fill in blanks from one row past the last current point, for the number of rows needed (num.missing)
-rightside<-c(right.lm,blanks)
-add_col_or_row = function(x, n = 1, add_col = T, fill = 0)
-{
-  m1 = matrix(x, ncol = if(add_col) nrow(x) * ncol(x) else nrow(x), byrow = T)
-  m2 = matrix(fill, nrow = if(add_col) dim(x)[3] else prod(dim(x)[-1]),
-              ncol = if(add_col) nrow(x) * n else n)
-  array(t(cbind(m1, m2)),
-        c(nrow(x) + ((!add_col) * n), ncol(x) + (add_col * n), dim(x)[3]))
-}
-specimens2<-add_col_or_row(slidedlms,n=num.missing,add_col=FALSE,fill=NA)
-dimnames(specimens2)[3]<-dimnames(slidedlms)[3]
-bilats<-cbind(leftside,rightside)
-newarray<-mirrorfill(specimens2,l1=midline,l2=bilats)
-dimnames(newarray)[3]<-dimnames(slidedlms)[3]
+RHS <- slidedlms[,,c(5, 15, 16, 17, 20)]
+LHS <- slidedlms[,,-c(5, 15, 16, 17, 20)]
+
+#Reflect RHS to left 
+arr.refl <-(-1)*(RHS[1:length(1:nrow(RHS)),,])
+
+#Bind arr.refl with LHS 
+#Bind the 2 datasets 
+binded_data=abind::abind(LHS, arr.refl, along = 3)
+
+#pull out the canines 
+
+spheres3d(binded_data[c(7, 9, 11, 71:90),, 1])
+spheres3d(binded_data[c(7, 9, 11),, 1], col = 'red')
+spheres3d(binded_data[c(71:90),, 1], col = 'black')
 
 
-#Remove duplicates
-newarray <- newarray[-c(159:175),,]
+#pull out the canines 
+canines <- binded_data[c(7, 9, 11, 71:90),,]
 
-
-
-#Double check the extra landmarks
-open3d();
-spheres3d(newarray[,,14],radius=1, col = 'green')
-spheres3d(newarray[,,13],radius=1, col = 'brown')
-spheres3d(newarray[bilats[,1],,13],col='red',radius=1)
-spheres3d(newarray[bilats[,2],,13],col='blue',radius=1)
-
-#double check it's mirrored correctly 
-spheres3d(newarray[c(1:9, 27:61),,16], radius = 2, col = 'yellow') #midline 
-spheres3d(newarray[c(10:26),,16], radius = 2, col = 'blue') #LHS landmarks 
-spheres3d(newarray[c(62:101),,16], radius = 2, col = 'pink') #LHS curves 
-spheres3d(newarray[c(102:141),,16], radius = 2, col = 'black') #RHS curves 
-spheres3d(newarray[c(142:158),,16], radius = 2, col = 'gold') #RHS landmarks#
-
-
-#Pull out all LMs only (for LHS and RHS) and check - want to include the midline too 
-LMs_only <- newarray[c(1:9, 10:26, 142:158),,]
-spheres3d(LMs_only[c(1:9),,11], radius = 2, col = 'black')
-spheres3d(LMs_only[c(10:26),,11], radius = 2, col = 'red')
-spheres3d(LMs_only[c(27:43),,11], radius = 2, col = 'blue')
+#remove the blank specimen 
+canines_no_blank <- canines[,,-c(1)]
 
 
 #Procrustes the whole skull
-Y.gpa=gpagen(LMs_only) #Procrustes
-LMs_proc=Y.gpa$coords #Subset out the coords 
+Y.gpa=gpagen(canines_no_blank) #Procrustes
+canines_no_blank_proc=Y.gpa$coords #Subset out the coords 
 size=Y.gpa$Csize #Centroid size
 
-plot(LMs_proc) #raw data
-
-
-#Remove the extra landmarks from the raw data - leave the midline 
-#LMs only 
-LMs_only_lhs_midline <- LMs_proc[c(1:26),,]
-spheres3d(LMs_only_lhs_midline[,,11], radius = 0.009)
+plot(canines_no_blank_proc) #raw data
 
 
 #RUN PCA ON PROCRUSTED DATA WITH MIRRORED LMS REMOVED
 #This runs a PC and pulls out PC scores (you can also use this for the mesh)
-PCA.ALL <- gm.prcomp(LMs_only_lhs_midline)
+PCA.ALL <- gm.prcomp(canines_no_blank_proc)
 plot(PCA.ALL) #raw morphospace
 
 #to look at specimen position (numbers)
@@ -212,15 +173,99 @@ text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnam
 
 
 #Pull out the max and min shapes 
-spheres3d(PCA.ALL$shapes$shapes.comp1$min, radius=.007,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp1$max, radius=.007,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.007,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.007,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp1$min, radius=.02,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp1$max, radius=.02,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.02,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.02,color = "grey")
 
 
 #Building a nicer morphospace with ecological data 
+#This is ordered the same as the binned data 
+species_data <- read.csv('species_teeth_binded_no_blanks.csv', fileEncoding="UTF-8-BOM")
 
-species_data <- read.csv('species_data_diadema.csv', fileEncoding="UTF-8-BOM")
+library(hablar)
+library(ggrepel)
+library(ggConvexHull)
+
+pca_scores <- as_tibble(PCA.ALL$x)
+pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x))
+
+pca_scores2 <- left_join(species_data, pca_scores, by = c("full"))
+pca_scores2 <- pca_scores2 %>% convert(fct(genetic_id)) #or whichever factor you are keen to look at 
+
+
+pca_res <- PCA.ALL #the Procrusted, aligned data 
+
+#Set the palette
+cbPalette <- c("#481567FF", "#20A387FF", "#DCE319FF")
+
+g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genetic_id))+
+  geom_point()
+g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+ 
+  
+  geom_point(size=8,aes(colour=genetic_id, fill= genetic_id))+
+  theme_bw()+
+  theme(aspect.ratio = 1) +
+  scale_alpha(range=c(0.4, 1),guide='none')+
+  #ggtitle("Principal Components Analysis") +
+  
+  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
+  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
+  geom_text_repel(aes(label = species_data$number), 
+                  box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
+  labs(fill = "genetic_id") + 
+  scale_color_manual(values= cbPalette) +
+  #geom_convexhull(alpha = 0.3,aes(fill = genetic_id))
+  
+  
+  g #plot
+
+g + scale_y_reverse()
+g
+
+#To add specimen names 
+g2<- g + geom_text_repel(inherit.aes = FALSE, aes(fontface=1,x=Comp1, y=Comp2,label=sub("_", " ", full), size = 1 ))
+g2
+
+
+#Pull out M3
+
+#pull out the canines 
+atarfa=ply2mesh(file="D:/Missy lemurs/Elizabeths_ PCA and lemur stuff/landmarks/ply/ply ASCII/ply/Propithecus diadema USNM_63347.ply")
+shade3d(atarfa,col='white')
+spheres3d(binded_data[c(7, 9, 11, 71:90),, 14], radius = 0.7, col = 'red')
+
+M3 <- (binded_data[c(60:69),,])
+#remove the blank specimen 
+M3_no_blank <- M3[,,-c(1)]
+
+#Procrustes the whole skull
+Y.gpa=gpagen(M3_no_blank) #Procrustes
+M3_no_blank_proc=Y.gpa$coords #Subset out the coords 
+size=Y.gpa$Csize #Centroid size
+
+plot(M3_no_blank_proc) #raw data
+
+
+#RUN PCA ON PROCRUSTED DATA WITH MIRRORED LMS REMOVED
+#This runs a PC and pulls out PC scores (you can also use this for the mesh)
+PCA.ALL <- gm.prcomp(M3_no_blank_proc)
+plot(PCA.ALL) #raw morphospace
+
+#to look at specimen position (numbers)
+text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnames(arraylm)[3]
+
+
+#Pull out the max and min shapes 
+spheres3d(PCA.ALL$shapes$shapes.comp1$min, radius=.06,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp1$max, radius=.06,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.06,color = "grey")
+spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.06,color = "grey")
+
+
+#Building a nicer morphospace with ecological data 
+#This is ordered the same as the binned data 
+species_data <- read.csv('species_teeth_binded_no_blanks.csv', fileEncoding="UTF-8-BOM")
 
 library(hablar)
 library(ggrepel)
@@ -265,280 +310,6 @@ g
 #To add specimen names 
 g2<- g + geom_text_repel(inherit.aes = FALSE, aes(fontface=1,x=Comp1, y=Comp2,label=sub("_", " ", full), size = 1 ))
 g2
-
-
-####################
-#                  #
-#     CURVES       #
-#                  #
-####################
-
-#Use 'mirrored_curves_raw' (newarray) - check
-spheres3d(mirrored_curves_raw[c(1:9, 27:58),,16], radius = 2, col = 'yellow') #midline 
-spheres3d(mirrored_curves_raw[c(10:26),,16], radius = 2, col = 'blue') #LHS landmarks 
-spheres3d(mirrored_curves_raw[c(62:101),,16], radius = 2, col = 'pink') #LHS curves 
-spheres3d(mirrored_curves_raw[c(102:141),,16], radius = 2, col = 'black') #RHS curves 
-spheres3d(mirrored_curves_raw[c(142:158),,16], radius = 2, col = 'gold') #RHS LMs
-
-#Procrustes the whole data set (EC curves)
-#Procrustes the whole skull
-Y.gpa=gpagen(mirrored_curves_raw) #Procrustes
-whole_EC_proc=Y.gpa$coords #Subset out the coords 
-size=Y.gpa$Csize #Centroid size
-
-plot(whole_EC_proc) #raw data
-
-
-#Remove the extra landmarks from the raw data - leave the midline 
-#LMs only 
-EC_lhs_midline_proc <- whole_EC_proc[-c(102:158),,]
-spheres3d(EC_lhs_midline_proc[,,11], radius = 0.009)
-
-
-#RUN PCA ON PROCRUSTED DATA WITH MIRRORED LMS REMOVED
-#This runs a PC and pulls out PC scores (you can also use this for the mesh)
-PCA.ALL <- gm.prcomp(EC_lhs_midline_proc)
-plot(PCA.ALL) #raw morphospace
-
-#to look at specimen position (numbers)
-text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnames(arraylm)[3]
-
-
-#Pull out the max and min shapes 
-spheres3d(PCA.ALL$shapes$shapes.comp1$min, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp1$max, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.003,color = "grey")
-
-
-#Building a nicer morphospace with ecological data 
-
-species_data <- read.csv('species_data_diadema.csv', fileEncoding="UTF-8-BOM")
-
-library(hablar)
-library(ggrepel)
-library(ggConvexHull)
-
-pca_scores <- as_tibble(PCA.ALL$x)
-pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x))
-
-pca_scores2 <- left_join(species_data, pca_scores, by = c("full"))
-pca_scores2 <- pca_scores2 %>% convert(fct(genetic_id)) #or whichever factor you are keen to look at 
-
-
-pca_res <- PCA.ALL #the Procrusted, aligned data 
-
-#Set the palette
-cbPalette <- c('grey', "#481567FF", "#20A387FF", "#DCE319FF")
-
-g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genetic_id))+
-  geom_point()
-g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+ 
-  
-  geom_point(size=6,aes(colour=genetic_id, fill= genetic_id))+
-  theme_bw()+
-  theme(aspect.ratio = 1) +
-  scale_alpha(range=c(0.4, 1),guide='none')+
-  #ggtitle("Principal Components Analysis") +
-  
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
-  geom_text_repel(aes(label = species_data$number), 
-                  box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
-  labs(fill = "genetic_id") + 
-  scale_color_manual(values= cbPalette) +
-  #geom_convexhull(alpha = 0.3,aes(fill = genetic_id))
-  
-  
-  g #plot
-
-g + scale_y_reverse()
-g
-
-
-#####################
-#                   #
-#  Missy's curves   #
-#                   #
-#####################
-
-
-
-#Pull out Missy's curves 
-#LMs only 
-#Missy's curves 
-#Pull out Missy's original curves 
-whole_MH_raw <- mirrored_curves_raw[c(1:26, 32:41, 62:91, 102:131, 142:158),,]
-spheres3d(whole_MH_raw[c(1:26, 97:113),,11], radius = 1, col = 'yellow')# Check LMs
-spheres3d(whole_MH_raw[c(27:96),,11], radius = 1, col = 'blue') # Check curves
-spheres3d(whole_MH_raw[,,11])
-
-#Procrustes the whole data set (EC curves)
-#Procrustes the whole skull
-Y.gpa=gpagen(whole_MH_raw) #Procrustes
-whole_MH_proc=Y.gpa$coords #Subset out the coords 
-size=Y.gpa$Csize #Centroid size
-
-plot(whole_MH_proc) #raw data
-
-#REMOVE RHS OF MH DATA BEFORE PCA
-MH_lhs_midline_proc <- whole_MH_proc[-c(67:113),,] #remove RHS
-spheres3d(MH_lhs_midline_proc[,,11], radius = 0.004)
-
-#RUN PCA ON PROCRUSTED DATA WITH MIRRORED LMS REMOVED
-#This runs a PC and pulls out PC scores (you can also use this for the mesh)
-PCA.ALL <- gm.prcomp(MH_lhs_midline_proc)
-plot(PCA.ALL) #raw morphospace
-
-#to look at specimen position (numbers)
-text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnames(arraylm)[3]
-
-
-#Pull out the max and min shapes 
-spheres3d(PCA.ALL$shapes$shapes.comp1$min, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp1$max, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.003,color = "grey")
-spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.003,color = "grey")
-
-
-#Building a nicer morphospace with ecological data 
-
-species_data <- read.csv('species_data_diadema.csv', fileEncoding="UTF-8-BOM")
-
-library(hablar)
-library(ggrepel)
-library(ggConvexHull)
-
-pca_scores <- as_tibble(PCA.ALL$x)
-pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x))
-
-pca_scores2 <- left_join(species_data, pca_scores, by = c("full"))
-pca_scores2 <- pca_scores2 %>% convert(fct(genetic_id)) #or whichever factor you are keen to look at 
-
-
-pca_res <- PCA.ALL #the Procrusted, aligned data 
-
-#Set the palette
-cbPalette <- c('grey', "#481567FF", "#20A387FF", "#DCE319FF")
-
-g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genetic_id))+
-  geom_point()
-g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+ 
-  
-  geom_point(size=6,aes(colour=genetic_id, fill= genetic_id))+
-  theme_bw()+
-  theme(aspect.ratio = 1) +
-  scale_alpha(range=c(0.4, 1),guide='none')+
-  #ggtitle("Principal Components Analysis") +
-  
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
-  geom_text_repel(aes(label = species_data$number), 
-                  box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
-  labs(fill = "genetic_id") + 
-  scale_color_manual(values= cbPalette) +
-  #geom_convexhull(alpha = 0.3,aes(fill = genetic_id))
-  
-  
-  g #plot
-
-g + scale_y_reverse()
-g
-
-####################
-#                  #
-#   Adults only    #
-#                  #
-####################
-
-
-#Remove the juveniles 
-adults_only <- mirrored_curves_raw[,,-c(5,7,12,18,24,26,28,30,31,33,34,35,36)]
-
-spheres3d(adults_only[,,11],radius = 1)
-rglwidget()
-
-#Procrustes the whole data set (EC curves)
-#Procrustes the whole skull
-Y.gpa=gpagen(adults_only) #Procrustes
-adults_proc=Y.gpa$coords #Subset out the coords 
-size=Y.gpa$Csize #Centroid size
-
-plot(adults_proc) #raw data
-
-
-#Remove the extra landmarks from the raw data - leave the midline 
-#LMs only 
-EC_lhs_midline_proc_adults <- adults_proc[-c(102:158),,]
-spheres3d(EC_lhs_midline_proc_adults[,,11], radius = 0.004)
-rglwidget()
-
-#RUN PCA ON PROCRUSTED DATA WITH MIRRORED LMS REMOVED
-#This runs a PC and pulls out PC scores (you can also use this for the mesh)
-PCA.ALL <- gm.prcomp(EC_lhs_midline_proc_adults)
-plot(PCA.ALL) #raw morphospace
-
-#to look at specimen position (numbers)
-text(PCA.ALL$x[,1],PCA.ALL$x[,2], pos = 4) #these numbers are the same as dimnames(arraylm)[3]
-
-
-#Pull out the max and min shapes 
-spheres3d(PCA.ALL$shapes$shapes.comp2$min, radius=.003,color = "grey")
-rglwidget()
-spheres3d(PCA.ALL$shapes$shapes.comp2$max, radius=.003,color = "grey")
-rglwidget()
-spheres3d(PCA.ALL$shapes$shapes.comp3$min, radius=.003,color = "grey")
-rglwidget()
-spheres3d(PCA.ALL$shapes$shapes.comp3$max, radius=.003,color = "grey")
-rglwidget()
-
-#Building a nicer morphospace with ecological data 
-
-species_data <- read.csv('species_data_diadema_adults.csv', fileEncoding="UTF-8-BOM")
-
-library(hablar)
-library(ggrepel)
-library(ggConvexHull)
-
-pca_scores <- as_tibble(PCA.ALL$x)
-pca_scores <- pca_scores %>% mutate(., full=rownames(PCA.ALL$x))
-
-pca_scores2 <- left_join(species_data, pca_scores, by = c("full"))
-pca_scores2 <- pca_scores2 %>% convert(fct(genetic_id)) #or whichever factor you are keen to look at 
-
-
-pca_res <- PCA.ALL #the Procrusted, aligned data 
-
-#Set the palette
-cbPalette <- c('grey', "#481567FF", "#20A387FF", "#DCE319FF")
-
-g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=genetic_id))+
-  geom_point()
-g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=genetic_id))+ 
-  
-  geom_point(size=8,aes(colour=genetic_id, fill= genetic_id))+
-  theme_bw()+
-  theme(aspect.ratio = 1) +
-  scale_alpha(range=c(0.4, 1),guide='none')+
-  #ggtitle("Principal Components Analysis") +
-  
-  xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) + 
-  ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
-  geom_text_repel(aes(label = species_data$number), 
-                  box.padding = unit(0.45, "lines"),  max.overlaps = 30) + #uncomment this if you want names on the plot
-  labs(fill = "genetic_id") + 
-  scale_color_manual(values= cbPalette) +
-  geom_convexhull(alpha = 0.3,aes(fill = genetic_id))
-
-
-g #plot
-
-g + scale_y_reverse()
-g
-
-
-
-
 
 
 
