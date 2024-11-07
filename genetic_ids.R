@@ -1,4 +1,4 @@
-#Adding geentic id data to Missy's lemurs
+#Adding gentic id data to Missy's lemurs
 
 #load your libraries
 library(Rvcg)
