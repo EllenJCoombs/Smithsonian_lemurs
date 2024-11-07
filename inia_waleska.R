@@ -1,19 +1,24 @@
+
 #morphometric code for Waleska
+install.packages('geomorph')
+
 
 #load the packages 
 library(geomorph)
 library(paleomorph)
+library(Morpho)
+library(rgl)
 
 
-setwd("X:xxxxxxx/xxxxxx") 
+setwd("D:/Inia skulls/test/pts") 
 #NB the plys have been transformed to ASCII (from binary) so that landmarks can be visualised on the mesh 
 #See code 'Binary_ASCII_ply.R" if needed for this step
 
-ntaxa<-36 ## number of specimens (extant only) - NB can also put this in the code below (x,y,z) 
+ntaxa<-20 ## number of specimens (extant only) - NB can also put this in the code below (x,y,z) 
 #data set .pts from Checkpoint
 
 ptslist<-dir(pattern='.pts',recursive=T)
-ptsarray<-array(dim=c(26,3,36)) #dim=c(number of landmarks and semilandmarks, number of dimensions, number of specimens)
+ptsarray<-array(dim=c(121,3,20)) #dim=c(number of landmarks and semilandmarks, number of dimensions, number of specimens)
 for(i in 1:length(ptslist))
 {
   ptsarray[,,i]<-as.matrix(read.table(file=ptslist[i],skip=2,header=F,sep="",row.names=1))
@@ -25,6 +30,7 @@ dimnames(ptsarray)[3]<-list(
 arraylm <- ptsarray
 arraylm #run to check how this looks
 
+dimnames(arraylm)[3] #check the final list order 
 
 ##### CHANGING MISSING LANDMARKS BEFORE MIRRORING #########
 #Otherwise you get weird numbers that aren't 9999 mirroring
@@ -35,14 +41,14 @@ arraylm <- estimate.missing(arraylm,method="TPS")
 
 
 #have a look at how these look without the mesh first 
-checkLM(arraylm,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 1)
+checkLM(arraylm,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 6)
 
 #or can check manually 
-spheres3d(arraylm[,,1],radius=5) #check lms
+spheres3d(arraylm[,,6],radius=4, col = 'red') #check lms
+spheres3d(arraylm[,,3],radius=5, col = 'blue') 
 
 
-#Check lms on the mesh 
-
+text3d(arraylm[,,12], text = 1:121)
 
 #remove translation, rotation, and size info
 #Procrustes the data 
@@ -62,23 +68,20 @@ plot(pca.all) #simple morphospace
 text(pca.all$x[,1],pca.all$x[,2], pos = 4)
 
 
-spheres3d(pca.all$shapes$shapes.comp1$min, radius=.008,color = "grey") #PC1 min (left side of x axis)
-spheres3d(pca.all$shapes$shapes.comp1$max, radius=.01,color = "grey") #PC2 max (right side of x axis)
-spheres3d(pca.all$shapes$shapes.comp2$min, radius=.008,color = "grey") #PC2 min (bottom of y axis)
-spheres3d(pca.all$shapes$shapes.comp2$max, radius=.01,color = "grey") #PC2 max (top of y axis)
+spheres3d(pca.all$shapes$shapes.comp1$min, radius = .002,color = "grey") #PC1 min (left side of x axis)
+spheres3d(pca.all$shapes$shapes.comp1$max, radius=.002,color = "red") #PC2 max (right side of x axis)
+spheres3d(pca.all$shapes$shapes.comp2$min, radius=.002,color = "grey") #PC2 min (bottom of y axis)
+spheres3d(pca.all$shapes$shapes.comp2$max, radius=.002,color = "red") #PC2 max (top of y axis)
 
 
 #can also look at specimens on the mesh 
-atarfa=ply2mesh(file="D:/Inia skulls/ply binary/AMNH147503.ply")
+atarfa=ply2mesh(file="D:/Inia skulls/test/ply/AMNH209106.ply")
 shade3d(atarfa,col='white')
-
-spheres3d(arraylm_proc[,,6], col = 'blue', radius = 1.5) #add specimen number 
+spheres3d(arraylm[,,6], col = 'blue', radius = 4) #add specimen number 
 
 
 #build a nicer morphospace w/ ecological data if you have
 
-library(geomorph)
-library(rgl)
 library(ggplot2)
 library(hablar)
 library(tidyr)
@@ -90,7 +93,7 @@ library(ggrepel)
 #Change the name of the species column (with the species names in) to 'full', this is how we join the shape data with the species data. 
 #Make sure the name matches your .pts names 
 
-pca_res <- PCA.ALL #the Procrusted, aligned data
+pca_res <- pca.all #the Procrusted, aligned data
 
 species_data <- read.csv('EC_cleaned_data.csv', fileEncoding="UTF-8-BOM") #this is your species excel csv with the new coloum you added 
 
@@ -107,12 +110,11 @@ cbPalette <- c("#481567FF", "#20A387FF", "green", "pink", "black", "blue", "yell
 g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=age))+
   geom_point()
 g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=age))+
-  geom_point(size=6,aes(colour=genetic_id, fill= genetic_id))+
+  geom_point(size=6,aes(colour=diet, fill= diet))+
   theme_bw()+
   theme(aspect.ratio = 1) +
   scale_alpha(range=c(0.4, 1),guide='none')+
   #ggtitle("Principal Components Analysis looking at landmarking side") +
-  
   xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) +
   ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
   
