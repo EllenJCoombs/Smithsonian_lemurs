@@ -2,21 +2,20 @@
 #morphometric code for Waleska
 install.packages('geomorph') #example of how to install a package
 
-
 #load the packages 
 library(geomorph)
 library(paleomorph)
 library(Morpho)
 library(rgl)
 
-
-setwd("D:/Inia skulls/test/pts") 
+setwd("D:/Inia skulls/test/pts") #set to your pts folder
 #NB the plys have been transformed to ASCII (from binary) so that landmarks can be visualised on the mesh 
 #See code 'Binary_ASCII_ply.R" if needed for this step
 
-ntaxa<-20 ## number of specimens (extant only) - NB can also put this in the code below (x,y,z) 
-#data set .pts from Checkpoint
+ntaxa<-20 #number of specimens - NB can also put this in the code below (x,y,z) 
+#data set is pulled from the .pts from Checkpoint
 
+#load the pts data 
 ptslist<-dir(pattern='.pts',recursive=T)
 ptsarray<-array(dim=c(121,3,20)) #dim=c(number of landmarks and semilandmarks, number of dimensions, number of specimens)
 for(i in 1:length(ptslist))
@@ -26,38 +25,43 @@ for(i in 1:length(ptslist))
 
 #Set to the whole project directory for this - the code wants to look for 'ply' folder 
 dimnames(ptsarray)[3]<-list(
-  substr(dir("./pts",pattern=".pts"),1,(nchar(dir("./pts",pattern=".pts"))-4)))###donne nom de scan a ptsarray et -4 pour retirer derniere lettre de nom
-arraylm <- ptsarray
+  substr(dir("./pts",pattern=".pts"),1,(nchar(dir("./pts",pattern=".pts"))-4))) #pulls the specien name from the file
+arraylm <- ptsarray #make a duplicate of the data and call it arraylm
 arraylm #run to check how this looks
 
-dimnames(arraylm)[3] #check the final list order 
+dimnames(arraylm)[3] #check the final list order by pulling out the dimension names from dimension [3] where the species names/number sits
 
-##### CHANGING MISSING LANDMARKS BEFORE MIRRORING #########
-#Otherwise you get weird numbers that aren't 9999 mirroring
+##### CHANGING MISSING LANDMARKS #########
 #estimate.missing from Geomorph is used for estimating missing landmarks 
 
 arraylm[which(arraylm==9999)] <- NA
 arraylm <- estimate.missing(arraylm,method="TPS")
 
-
-#have a look at how these look without the mesh first 
-checkLM(arraylm,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 6)
-
-#or can check manually 
+#check manually without the mesh first 
 spheres3d(arraylm[,,6],radius=4, col = 'red') #check lms
 spheres3d(arraylm[,,3],radius=5, col = 'blue') 
 
+text3d(arraylm[,,12], text = 1:121) #check the number of each landmark and landmark ordering with text3d
 
-text3d(arraylm[,,12], text = 1:121)
+#can also look at specimens on the mesh 
+atarfa=ply2mesh(file="D:/Inia skulls/test/ply/AMNH209106.ply")
+shade3d(atarfa,col='white')
+spheres3d(arraylm[,,6], col = 'blue', radius = 4) #add specimen number 
 
-#remove translation, rotation, and size info
-#Procrustes the data 
-arraylm_proc <- arraylm
+#this code runs through each of the speimens in turn (you have to hit return in the console to see the next specimen)
+checkLM(arraylm,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 6)
+
+#Procrustes the data - remove translation, rotation, and size info
+arraylm_proc <- arraylm # create another copy of the data and call it something new 
 Y.gpa=gpagen(arraylm_proc) #Procrustes
 data=Y.gpa$coords #Subset out the coords 
 size=Y.gpa$Csize #centroid size
 
-plot(data)
+plot(data) #check the data are distributed as you would expect 
+
+#save the centroid size data (make sure you have set the working directory to the folder you want this to be saved in
+write .
+
 
 
 #PCA - run the pca
@@ -74,10 +78,7 @@ spheres3d(pca.all$shapes$shapes.comp2$min, radius=.002,color = "grey") #PC2 min 
 spheres3d(pca.all$shapes$shapes.comp2$max, radius=.002,color = "red") #PC2 max (top of y axis)
 
 
-#can also look at specimens on the mesh 
-atarfa=ply2mesh(file="D:/Inia skulls/test/ply/AMNH209106.ply")
-shade3d(atarfa,col='white')
-spheres3d(arraylm[,,6], col = 'blue', radius = 4) #add specimen number 
+
 
 
 #build a nicer morphospace w/ ecological data if you have
