@@ -1,6 +1,6 @@
 
 #morphometric code for Waleska
-install.packages('geomorph')
+install.packages('geomorph') #example of how to install a package
 
 
 #load the packages 
