@@ -60,9 +60,7 @@ size=Y.gpa$Csize #centroid size
 plot(data) #check the data are distributed as you would expect 
 
 #save the centroid size data (make sure you have set the working directory to the folder you want this to be saved in
-write .
-
-
+write.csv(size, file = 'centroid_size.csv') 
 
 #PCA - run the pca
 pca.all <- gm.prcomp(data)
@@ -71,15 +69,11 @@ plot(pca.all) #simple morphospace
 #to look at specimen position 
 text(pca.all$x[,1],pca.all$x[,2], pos = 4)
 
-
+#check what the min and max PCs look like
 spheres3d(pca.all$shapes$shapes.comp1$min, radius = .002,color = "grey") #PC1 min (left side of x axis)
 spheres3d(pca.all$shapes$shapes.comp1$max, radius=.002,color = "red") #PC2 max (right side of x axis)
 spheres3d(pca.all$shapes$shapes.comp2$min, radius=.002,color = "grey") #PC2 min (bottom of y axis)
 spheres3d(pca.all$shapes$shapes.comp2$max, radius=.002,color = "red") #PC2 max (top of y axis)
-
-
-
-
 
 #build a nicer morphospace w/ ecological data if you have
 
@@ -89,8 +83,7 @@ library(tidyr)
 library(dplyr)
 library(ggrepel)
 
-#Read in your ecological data spreadsheet (this should be an excel file saved as a .csv file). 
-#Add a column in your data sheet called 'landmarking_side' and then put 'left' or 'right' next to each of the specimens depending on which side you landmarked 
+#Read in your ecological data spreadsheet (this should be an excel file saved as a .csv file).  
 #Change the name of the species column (with the species names in) to 'full', this is how we join the shape data with the species data. 
 #Make sure the name matches your .pts names 
 
@@ -106,8 +99,9 @@ pca_scores2 <- pca_scores2 %>% convert(fct(age)) #pulling out landmarking_side a
 
 #Set the palette
 cbPalette <- c("#481567FF", "#20A387FF", "green", "pink", "black", "blue", "yellow", "brown", "orange",
-               'red', 'grey') #You only need two colours, for 'left' and 'right' 
+               'red', 'grey') #Change depending on how many colours you need for your categories 
 
+#plot with ggplot 
 g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=age))+
   geom_point()
 g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=age))+
@@ -115,10 +109,9 @@ g <-ggplot(pca_scores2, aes(x=Comp1, y=Comp2, fill=age))+
   theme_bw()+
   theme(aspect.ratio = 1) +
   scale_alpha(range=c(0.4, 1),guide='none')+
-  #ggtitle("Principal Components Analysis looking at landmarking side") +
+  #ggtitle("Principal Components Analysis") +
   xlab(paste0("PC Axis 1 (", signif((pca_res$pc.summary$importance[2,1]*100),3), "% of Total Variance)")) +
   ylab(paste0("PC Axis 2 (",signif((pca_res$pc.summary$importance[2,2]*100),3),"% of Total Variance)")) +
-  
   labs(fill = "genetic_id") +
   scale_color_manual(values= cbPalette)
 
