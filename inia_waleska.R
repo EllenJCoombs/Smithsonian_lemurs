@@ -13,12 +13,12 @@ setwd("D:/Inia skulls/pts") #set to your pts folder
 #See code 'Binary_ASCII_ply.R" if needed for this step
 
 
-ntaxa<-39 #number of specimens - NB can also put this in the code below (x,y,z) 
+ntaxa<-40 #number of specimens - NB can also put this in the code below (x,y,z) 
 #data set is pulled from the .pts from Checkpoint
 
 #load the pts data 
 ptslist<-dir(pattern='.pts',recursive=T)
-ptsarray<-array(dim=c(121,3,39)) #dim=c(number of landmarks and semilandmarks, number of dimensions, number of specimens)
+ptsarray<-array(dim=c(121,3,40)) #dim=c(number of landmarks and semilandmarks, number of dimensions, number of specimens)
 for(i in 1:length(ptslist))
 {
   ptsarray[,,i]<-as.matrix(read.table(file=ptslist[i],skip=2,header=F,sep="",row.names=1))
@@ -169,3 +169,16 @@ g <- ggplot(pca_scores2_clean, aes(x=Comp1, y=Comp2, color=species)) +
   scale_fill_manual(values=cbPalette) # Ensure hull colors match point colors
 
 g # Plot
+
+
+#Stats - Function performs Procrustes ANOVA with permutation procedures to assess statistical hypotheses describing patterns of shape variation and covariation for a set of Procrustes shape variables
+gdf <- geomorph.data.frame(Y.gpa)
+#This is looking at habitat type and coords 
+gdf <- geomorph.data.frame(gdf, location = species_data$location, species = species_data$species, 
+                           sex = species_data$sex, number = species_data$number)
+model1 <- procD.lm(coords ~ location, iter=999, data = gdf, RRPP = TRUE)
+summary( model1)
+model2 <- procD.lm(coords ~ species, iter=999, data = gdf, RRPP = TRUE)
+summary(model2)
+
+
