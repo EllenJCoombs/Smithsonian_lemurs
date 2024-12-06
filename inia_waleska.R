@@ -55,6 +55,11 @@ spheres3d(arraylm[,,6], col = 'blue', radius = 4) #add specimen number
 #this code runs through each of the specimens in turn (you have to hit return in the console to see the next specimen)
 checkLM(arraylm,path="./ply/", pt.size = 2,suffix=".ply",render="s", begin = 6)
 
+#If you're just reading in the curves data set, then do that here (they've been resampled and slid already)
+#load('slidedlms_final.R')
+
+#arraylm <- slidedlms #FOR CURVES ONLY 
+
 #Procrustes the data - remove translation, rotation, and size info
 arraylm_proc <- arraylm # create another copy of the data and call it something new 
 Y.gpa=gpagen(arraylm_proc) #Procrustes
@@ -93,7 +98,7 @@ library(ggrepel)
 
 pca_res <- pca.all #the Procrusted, aligned data
 
-species_data <- read.csv('Morpho_Inia_data.csv', fileEncoding="UTF-8-BOM") #this is your species excel csv with the new coloum you added 
+species_data <- read.csv('Morpho_Inia_data_reordered.csv', fileEncoding="UTF-8-BOM") #this is your species excel csv with the new coloum you added 
 
 pca_scores <- as_tibble(pca_res$x)   #this is your PCA data as before 
 pca_scores <- pca_scores %>% mutate(., number=rownames(pca_res$x))
@@ -102,8 +107,7 @@ pca_scores2 <- left_join(species_data, pca_scores, by = c("number"))
 #pca_scores2 <- pca_scores2 %>% convert(fct(age)) #pulling out landmarking_side as the factor (could also pull out diet, sex, age, etc)
 
 #Set the palette
-cbPalette <- c("#481567FF", "brown", "#20A387FF", "pink", "grey", "blue", "yellow", "brown", "orange",
-               'red', 'grey') #Change depending on how many colours you need for your categories 
+cbPalette <- c("#9566BF", "#F4E916", "#20A387FF", "#375689", "#BEBEBE") #Change depending on how many colours you need for your categories 
 
 #plot with ggplot 
 g <- ggplot(pca_scores2, aes(x=Comp1, y=Comp2, color=species))+
@@ -156,7 +160,7 @@ hulls <- pca_scores2_clean %>%
 
 # Plot with ggplot
 g <- ggplot(pca_scores2_clean, aes(x=Comp1, y=Comp2, color=species)) +
-  geom_point(size=6, aes(fill=species)) +
+  geom_point(size=8, aes(fill=species)) +
   geom_polygon(data=hulls, aes(x=Comp1, y=Comp2, fill=species, group=species), 
                alpha=0.3, color=NA) + # Adjust alpha for transparency of hulls
   theme_bw() +
@@ -176,9 +180,45 @@ gdf <- geomorph.data.frame(Y.gpa)
 #This is looking at habitat type and coords 
 gdf <- geomorph.data.frame(gdf, location = species_data$location, species = species_data$species, 
                            sex = species_data$sex, number = species_data$number)
+
 model1 <- procD.lm(coords ~ location, iter=999, data = gdf, RRPP = TRUE)
 summary( model1)
 model2 <- procD.lm(coords ~ species, iter=999, data = gdf, RRPP = TRUE)
 summary(model2)
 
 
+#check for collinrarity between variables. If not sig, you 
+colinearity_test <- chisq.test(table(gdf$species, gdf$location))
+
+
+#ADDING MORPHED MESHES TO YOUR PLOT
+library(Morpho)
+########################getting the minimum and maximum shape variation at the extreme of each axes
+####################Vizualisation of landmarks onto 
+
+
+species_mesh <- vcgImport( paste( "D:/Inia skulls/Renamed ply files/ply binary/CAS16631.ply", sep = "" ) )
+
+
+species_mesh #that you already defined to vizualise the landmarks
+Species_landmark <-arraylm[,,13]#same
+#PC min and max
+PC1max<-pca.all$shapes$shapes.comp1$max
+PC1min<-pca.all$shapes$shapes.comp1$min
+PC2max<-pca.all$shapes$shapes.comp2$max
+PC2min<-pca.all$shapes$shapes.comp2$min
+
+colors()
+# max PC1
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC1max)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC1min)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC2max)
+shade3d(warpskull, col='white', specular=1)
+
+warpskull <- tps3d(species_mesh,Species_landmark, PC2min)
+shade3d(warpskull, col='white', specular=1)
